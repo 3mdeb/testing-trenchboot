@@ -1,0 +1,3 @@
+[submodule "rtectrl-rest-api"]
+	path = rtectrl-rest-api
+	url = https://github.com/3mdeb/rtectrl-rest-api.git
