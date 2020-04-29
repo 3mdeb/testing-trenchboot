@@ -1,0 +1,28 @@
+image:
+  name: 3mdeb/rf-docker:0.4.2
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#overriding-the-entrypoint-of-an-image
+  # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2692
+  # use EMPTY ENTRYPOINT for docker >17.06
+  entrypoint: [""]
+
+stages:
+  - test
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+yocto_boot_test:
+  stage: test
+  tags:
+    - local
+    - test
+  only:
+    variables:
+      - $TEST_NAME == "boot_1"
+  cache: {}
+  script:
+    - export ARTIFACTS_URL=$(cat artifacts/artifacts_url.txt)
+    - robot -L TRACE -v rte_ip:$RTE_IP_APU2 -v config:apu2 -v artifacts_link:$ARTIFACTS_URL os/yocto_install.robot
+  artifacts:
+    paths:
+      - log.html
