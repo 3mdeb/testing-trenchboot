@@ -16,7 +16,11 @@ ${artifacts_link}   https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/
 ...         platform=apu2       board-revision=c4
 ...         rte_ip=none
 
-@{RTE_LIST}    &{RTE01}
+&{RTE02}    cpuid=02c00042f3ba1188    pcb_rev=0.5.3
+...         platform=apu2       board-revision=d
+...         platform_vendor=PC Engines    rte_ip=none
+
+@{RTE_LIST}    &{RTE01}    ${RTE02}
 
 # hardware configuration:
 # -----------------------------------------------------------------------------
@@ -25,24 +29,27 @@ ${artifacts_link}   https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/
 #@{HDD_LIST}     &{HDD01}
 # -----------------------------------------------------------------------------
 &{SSD01}        vendor=Hoodisk    volume=32GB    type=Storage_SSD
-...             interface=mSATA    count=2
-@{SSD_LIST}     &{SSD01}
+...             interface=mSATA    count=1
+&{SSD02}        vendor=Hoodisk    volume=16GB    type=Storage_SSD
+...             interface=mSATA    count=1
+@{SSD_LIST}     &{SSD01}    ${SSD02}
 # -----------------------------------------------------------------------------
 &{CARD01}       vendor=SanDisk    volume=16GB    type=SD_Storage
-...             interface=SD    count=2
+...             interface=SD    count=1
 @{CARD_LIST}    &{CARD01}
 # -----------------------------------------------------------------------------
 &{USB01}        vendor=Kingston    volume=16GB    type=USB_Storage
-...             protocol=3.0    interface=USB    count=2
+...             protocol=3.0    interface=USB    count=1
 @{USB_LIST}     &{USB01}
 # -----------------------------------------------------------------------------
 &{MODULE01}       vendor=Infineon-SLB9665 TT 2.0    type=TPM_Module
-...               interface=LPC    count=3
+...               interface=LPC    count=2
 @{MODULE_LIST}    &{MODULE01}
 # -----------------------------------------------------------------------------
 
 # hardware configurations:
 @{CONFIG01}    &{RTE01}       &{SSD01}       &{CARD01}       &{USB01}
 ...            &{MODULE01}
+@{CONFIG02}    &{RTE02}    ${SSD02}    ${MODULE01}
 
-@{CONFIG_LIST}    @{CONFIG01}
+@{CONFIG_LIST}    @{CONFIG01}    @{CONFIG02}
