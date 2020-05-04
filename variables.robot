@@ -14,6 +14,7 @@ ${artifacts_link}   https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/
 
 &{RTE01}    cpuid=02c000420c4ce851    pcb_rev=0.5.3
 ...         platform=apu2       board-revision=c4
+...         rte_ip=none
 
 @{RTE_LIST}    &{RTE01}
 
