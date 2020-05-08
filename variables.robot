@@ -10,6 +10,7 @@ ${artifacts_link}   https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/
 @{boot_info_list}    grub_cmd_slaunch    grub_cmd_slaunch_module
 ...                  grub_slaunch_boot_skinit
 
+@{STORAGE_PRIORITY}  SSD_Storage    HDD_Storage    USB_Storage    SDC_Storage
 # TB Hardware config
 
 &{RTE01}    cpuid=02c000420c4ce851    pcb_rev=0.5.3
@@ -28,13 +29,13 @@ ${artifacts_link}   https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/
 #...             interface=SATA    count=1
 #@{HDD_LIST}     &{HDD01}
 # -----------------------------------------------------------------------------
-&{SSD01}        vendor=Hoodisk    volume=32GB    type=Storage_SSD
+&{SSD01}        vendor=Hoodisk    volume=32GB    type=SSD_Storage
 ...             interface=mSATA    count=1
-&{SSD02}        vendor=Hoodisk    volume=16GB    type=Storage_SSD
+&{SSD02}        vendor=Hoodisk    volume=16GB    type=SSD_Storage
 ...             interface=mSATA    count=1
 @{SSD_LIST}     &{SSD01}    ${SSD02}
 # -----------------------------------------------------------------------------
-&{CARD01}       vendor=SanDisk    volume=16GB    type=SD_Storage
+&{CARD01}       vendor=SanDisk    volume=16GB    type=SDC_Storage
 ...             interface=SD    count=1
 @{CARD_LIST}    &{CARD01}
 # -----------------------------------------------------------------------------
