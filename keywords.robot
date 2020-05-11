@@ -344,15 +344,18 @@ Prepare Test Suite
     ...                global variable and setting Device Under Test to start
     ...                state. Keyword used in all [Suite Setup] sections.
     Run Keyword If   '${config[:4]}' == 'apu2'    Import Resource    ${CURDIR}/platform-configs/apu2.robot
-    ${dev_number}=    Evaluate    ${dev_type[3:]}
-    ${dev_type}=      Evaluate    '${dev_type[:3]}'
-    Set Suite Variable    ${dev_type}
-    Set Suite Variable    ${dev_number}
+    Run Keyword If   '${dev_type}' != 'auto'    Set Storage Device Number And Type
 
     Open Connection And Log In
     ${platform}=    Get current RTE param    platform
     Set Global Variable    ${platform}
     Get DUT To Start State
+
+Set Storage Device Number And Type
+    ${dev_number}=    Evaluate    int(${dev_type[3:]})
+    ${dev_type}=      Evaluate    '${dev_type[:3]}'
+    Set Suite Variable    ${dev_type}
+    Set Suite Variable    ${dev_number}
 
 Get DUT To Start State
     [Documentation]    Clear telnet buffer and get Device Under Test to start
@@ -447,6 +450,7 @@ Boot From Storage Device
     ...    ELSE IF    '${dev_type}'=='SDC'    Boot From SD Card
 
 Choose Device Type
+    Set Global Variable    ${dev_number}    0
     ${conf}=    Get Current CONFIG    ${CONFIG_LIST}
     :FOR    ${s}    in    @{STORAGE_PRIORITY}
     \    Run Keyword If    '${s}' in [c['type'] for c in ${conf[1:]}]
@@ -456,7 +460,6 @@ Choose Device Type
 Increment Device File
     [Documentation]    Naive implementation of block device file incrementation
     [Arguments]    ${dev_file}
-    #Run Keyword If    '${dev_type}' in ['SSD', 'HDD', 'USB']
     ${dev_file}=    Evaluate   '${dev_file[:-1]}' + chr(ord('${dev_file[-1]}')+${dev_number})
     [Return]    ${dev_file}
 
@@ -467,8 +470,9 @@ Choose Device File
     ...             '${dev_type}'=='HDD'    /dev/hda
     ...             '${dev_type}'=='USB'    /dev/sda
     ...             '${dev_type}'=='SDC'    /dev/mmcblk0
-    ${dev_file}=    Increment Device File   ${dev_file}    ${dev_number}
+    ${dev_file}=    Increment Device File   ${dev_file}
     Should Contain    ${fdisk_l}    ${dev_file}
+    ...    msg=\nThere's no storage device: ${dev_file}
     Set Suite Variable    ${dev_file}
 
 Choose Storage Device For Install
@@ -478,6 +482,6 @@ Choose Storage Device For Install
     ...                choice will be made in order: SSD->HDD->USB->SDC
     ...                If dev_file==auto first of a type is chosen eg. /dev/sda
     ...                Device file may be incremented, eg. HDD1 -> /dev/hdb
-    [Arguments]    ${dev_type}    ${dev_file}
     Run Keyword If    '${dev_type}'=='auto'    Choose Device Type
     Run Keyword If    '${dev_file}'=='auto'    Choose Device File
+    Log To Console    \ndev_type:${dev_type}, dev_file:${dev_file}, dev_number:${dev_number}
