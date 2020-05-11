@@ -344,7 +344,10 @@ Prepare Test Suite
     ...                global variable and setting Device Under Test to start
     ...                state. Keyword used in all [Suite Setup] sections.
     Run Keyword If   '${config[:4]}' == 'apu2'    Import Resource    ${CURDIR}/platform-configs/apu2.robot
-    ...    ELSE IF   '${config[:13]}' == 'apu1-mainline'    Import Resource    ${CURDIR}/platform-configs/apu1-mainline.robot
+    ${dev_number}=    Evaluate    ${dev_type[3:]}
+    ${dev_type}=      Evaluate    '${dev_type[:3]}'
+    Set Suite Variable    ${dev_type}
+    Set Suite Variable    ${dev_number}
 
     Open Connection And Log In
     ${platform}=    Get current RTE param    platform
@@ -435,3 +438,46 @@ Gather and install meta-trenchboot artifacts
     Telnet.Execute Command    wget -O artifacts.zip ${artifacts_link}
     Telnet.Execute Command    unzip artifacts.zip && cd artifacts
     Telnet.Execute Command    bmaptool copy --bmap ${bmap_file} ${gz_file} ${install_device}
+
+Boot From Storage Device
+    [Arguments]    ${dev_type}
+    Run Keyword If    '${dev_type}'=='SSD'    Boot From Hard-Disk
+    ...    ELSE IF    '${dev_type}'=='HDD'    Boot From Hard-Disk
+    ...    ELSE IF    '${dev_type}'=='USB'    Boot From USB
+    ...    ELSE IF    '${dev_type}'=='SDC'    Boot From SD Card
+
+Choose Device Type
+    ${conf}=    Get Current CONFIG    ${CONFIG_LIST}
+    :FOR    ${s}    in    @{STORAGE_PRIORITY}
+    \    Run Keyword If    '${s}' in [c['type'] for c in ${conf[1:]}]
+    ...    Run Keywords    Set Suite Variable   ${dev_type}   ${s.rstrip('_Storage')}
+    ...    AND             Exit For Loop
+
+Increment Device File
+    [Documentation]    Naive implementation of block device file incrementation
+    [Arguments]    ${dev_file}
+    #Run Keyword If    '${dev_type}' in ['SSD', 'HDD', 'USB']
+    ${dev_file}=    Evaluate   '${dev_file[:-1]}' + chr(ord('${dev_file[-1]}')+${dev_number})
+    [Return]    ${dev_file}
+
+Choose Device File
+    ${fdisk_l}=    Telnet.Execute Command    fdisk -l
+    ${dev_file}=    Set Variable If
+    ...             '${dev_type}'=='SSD'    /dev/sda
+    ...             '${dev_type}'=='HDD'    /dev/hda
+    ...             '${dev_type}'=='USB'    /dev/sda
+    ...             '${dev_type}'=='SDC'    /dev/mmcblk0
+    ${dev_file}=    Increment Device File   ${dev_file}    ${dev_number}
+    Should Contain    ${fdisk_l}    ${dev_file}
+    Set Suite Variable    ${dev_file}
+
+Choose Storage Device For Install
+    [Documentation]    Checks for available storage devices in Config and
+    ...                directly on the machine to choose which one should be
+    ...                used for TB image installation. If dev_type==auto
+    ...                choice will be made in order: SSD->HDD->USB->SDC
+    ...                If dev_file==auto first of a type is chosen eg. /dev/sda
+    ...                Device file may be incremented, eg. HDD1 -> /dev/hdb
+    [Arguments]    ${dev_type}    ${dev_file}
+    Run Keyword If    '${dev_type}'=='auto'    Choose Device Type
+    Run Keyword If    '${dev_file}'=='auto'    Choose Device File

@@ -18,7 +18,8 @@ Resource    ../keywords.robot
 *** Variables ***
 
 @{pcrlist_no_drtm}   18 : ffff    17 : ffff    18 : 0000    17 : 0000
-${dev}               /dev/sda
+${dev_type}          auto    # Supported values: SDD, HDD, USB, SDC
+${dev_file}          auto    # For example: /dev/sda
 
 *** Test Cases ***
 
@@ -30,13 +31,15 @@ YOC1.1 Meta-trenchboot Yocto Install
     ...                                       Flashing tools for Apu2
     ${output}=    Telnet.Execute Command    uname -r
     Should Contain    ${output}    yocto
-    Gather and install meta-trenchboot artifacts    ${dev}    ${artifacts_link}
+    # Chosen device values are set as Suite Variables
+    Choose Storage Device For Install    ${dev_type}    ${dev_file}
+    Gather and install meta-trenchboot artifacts    ${dev_file}    ${artifacts_link}
 
 YOC1.2 Boot Without DRTM
     [Documentation]    Boots into previously flashed image with DRTM disabled
     ...                option and performs checks related to DRTM function
     Power On
-    Boot from Hard-Disk
+    Boot From Storage Device    ${dev_type}
     GRUB Boot Entry    boot
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{boot_info_list}
@@ -54,7 +57,7 @@ YOC1.3 Boot With DRTM
     [Documentation]    Boots into previously flashed image with DRTM enabled
     ...                option and performs checks related to DRTM function
     Power On
-    Boot from Hard-Disk
+    Boot From Storage Device    ${dev}
     GRUB Boot Entry    secure-boot
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{boot_info_list}
