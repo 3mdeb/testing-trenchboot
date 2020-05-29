@@ -22,6 +22,9 @@ ${iPXE_config_support}     ${True}
 
 *** Keywords ***
 
+Set Platform Library As Preferred
+    Set Library Search Order    apu2
+
 Power On
     [Documentation]    Keyword clears telnet buffer and sets Device Under Test
     ...                into Power On state using RTE OC buffers. Implementation
