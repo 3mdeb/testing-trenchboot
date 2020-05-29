@@ -23,7 +23,11 @@ ${dev_file}            auto    # For example: /dev/sda
 ...         platform=apu2       board-revision=d
 ...         platform_vendor=PC Engines    rte_ip=none
 
-@{RTE_LIST}    &{RTE01}    ${RTE02}
+&{RTE03}    cpuid=02c0004298d28199    pcb_rev=0.5.3
+...         platform=asrock       board-revision=none
+...         platform_vendor=Asrock    rte_ip=none
+
+@{RTE_LIST}    &{RTE01}    ${RTE02}    ${RTE03}
 
 # hardware configuration:
 # -----------------------------------------------------------------------------
