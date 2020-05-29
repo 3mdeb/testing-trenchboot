@@ -49,7 +49,7 @@ YOC1.2 Boot Without DRTM
     Telnet.Set Prompt    \~#
     Telnet.Execute Command    root
     ${pcrlist}=    Telnet.Execute Command    tpm2_pcrlist | tail -n 25
-    Should Contain Any    ${pcrlist}    @{pcrlist_no_drtm[:2]}
+    Should Contain All    ${pcrlist}    @{pcrlist_no_drtm[:2]}
 
 YOC1.3 Boot With DRTM
     [Documentation]    Boots into previously flashed image with DRTM enabled
