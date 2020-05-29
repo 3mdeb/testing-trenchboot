@@ -22,7 +22,7 @@ ${iPXE_config_support}     ${True}
 
 *** Keywords ***
 
-Set Platform Library As Preferred
+Set Chosen Platform Library As Preferred
     Set Library Search Order    apu2
 
 Power On
