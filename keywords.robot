@@ -32,7 +32,7 @@ iPXE dhcp
     [Arguments]    ${net_port}=0
     # request IP address
     Telnet.Set Timeout    30s
-    Telnet.Write Bare    dhcp net${net_port}\n    0.1
+    Telnet.Write Bare    dhcp net${net_port}\n    0.5
     Telnet.Read Until    Configuring
     Telnet.Read Until    ok
     Telnet.Read Until    iPXE>
@@ -48,13 +48,34 @@ iPXE menu
     [Documentation]    Enter iPXE menu. Takes PXE IP addres, http port number,
     ...                ipxe filename nad network port number as an arguments.
     [Arguments]    ${pxe_address}    ${filename}    ${net_port}=0
+    ...            ${read_until}=iPXE boot menu
     Set Timeout    30
+    Telnet.Read
     Wait Until Keyword Succeeds    3x    2s    iPXE dhcp    ${net_port}
     # download and run menu
-    Telnet.Write Bare    chain http://${pxe_address}/${filename}\n    0.1
+    Telnet.Write Bare    chain http://${pxe_address}/${filename}\n    0.7
     # wait for custom string from pxe-server
-    Telnet.Read Until    iPXE boot menu
+    Telnet.Set Timeout    90s
+    Telnet.Read Until    ${read_until}
     #Telnet.Write Bare    \x1b[B
+
+Write Bare Checking Every Letter
+    [Documentation]    Checks after writing each letter if it was recevied
+    ...                Retries if not
+    [Arguments]    ${string}
+    @{characters}=    Split String To Characters    ${string}
+    Telnet.Read
+    :FOR    ${c}    IN    @{characters}
+    \    Write Letter Until Successful    ${c}
+
+Write Letter Until Successful
+    [Arguments]    ${c}
+    :FOR    ${_}    IN RANGE    1    10
+    \    Telnet.Write Bare    ${c}
+    \    Sleep    0.5s
+    \    ${ret}=    Telnet.Read
+    \    ${check}=    Evaluate    """${c}""" in """${ret}"""
+    \    Run Keyword If    ${check}    Exit For Loop
 
 iPXE get menu position
     [Documentation]    Evaluate and return relative menu entry position
@@ -226,6 +247,16 @@ Boot Flashing Tools for Apu2 from iPXE
     Telnet.Write    root
     Telnet.Read Until Prompt
 
+Boot asrock from iPXE
+    [Documentation]    Boot Flasing Tools For Apu 2 from iPXE menu and login to
+    ...                system. Takes PXE IP addres, http port number, ipxe
+    ...                filename, system version and network port number as an arguments.
+    [Arguments]    ${pxe_address}    ${filename}    ${option}    ${net_port}=0
+    #Enter BIOS
+    Sleep    30s
+    #Telnet.Read Until    asdf
+    iPXE menu    ${pxe_address}    ${filename}    ${net_port}    Linux
+
 Get firmware version from binary
     [Documentation]    Return firmware version from binary file sent via SSH to
     ...                RTE system. Takes binary file path as an argument.
@@ -343,8 +374,12 @@ Prepare Test Suite
     ...                SSH and serial connections, setting current platform to
     ...                global variable and setting Device Under Test to start
     ...                state. Keyword used in all [Suite Setup] sections.
-    Run Keyword If   '${config[:4]}' == 'apu2'    Import Resource    ${CURDIR}/platform-configs/apu2.robot
+    Run Keyword If   '${config[:4]}' == 'apu2'    Import Resource
+    ...    ${CURDIR}/platform-configs/apu2.robot
+    ...    ELSE IF   '${config[:6]}' == 'asrock'  Import Resource
+    ...    ${CURDIR}/platform-configs/asrock-r1000v.robot
     Run Keyword If   '${dev_type}' != 'auto'    Set Storage Device Number And Type
+    Set Chosen Platform Library As Preferred
 
     Open Connection And Log In
     ${platform}=    Get current RTE param    platform
@@ -485,3 +520,8 @@ Choose Storage Device For Install
     Run Keyword If    '${dev_type}'=='auto'    Choose Device Type
     Run Keyword If    '${dev_file}'=='auto'    Choose Device File
     Log To Console    \ndev_type:${dev_type}, dev_file:${dev_file}, dev_number:${dev_number}
+
+Should Contain All
+    [Arguments]    ${log}    @{params}
+    :FOR    ${param}    IN    @{params}
+    \    Should Contain    ${log}    ${param}
