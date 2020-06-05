@@ -8,7 +8,7 @@ Library     RequestsLibrary
 Library     Collections
 
 Suite Setup       Run Keywords    Prepare Test Suite
-#...                               Check If iPXE Is Enabled
+...                               Check If iPXE Is Enabled
 Suite Teardown    Log Out And Close Connection\
 
 Resource    ../rtectrl-rest-api/rtectrl.robot
@@ -26,8 +26,8 @@ PXE1.1 Boot From Ipxe Without DRTM
     [Tags]    asrock
     [Documentation]    Boots ipxe on selected platform
     Power On
-    Boot asrock from iPXE    ${pxe_address}
-    ...    tb/yocto/yocto.ipxe    0
+    GRUB boot entry    ipxe    *boot    0
+    Boot from iPXE    ${pxe_address}    tb/yocto/yocto.ipxe
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{ipxe_boot_info_list}
     \    ${status}=    Run Keyword And Return Status    Should Not Contain
@@ -47,7 +47,8 @@ PXE1.2 Boot From Ipxe With DRTM
     [Tags]    asrock
     [Documentation]    Boots ipxe on selected platform
     Power On
-    Boot asrock from iPXE    ${pxe_address}    tb/yocto/yocto-lz.ipxe    0
+    GRUB boot entry    ipxe    *boot    0
+    Boot from iPXE    ${pxe_address}    tb/yocto/yocto-lz.ipxe
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{ipxe_boot_info_list}
     \    ${status}=    Run Keyword And Return Status    Should Contain
