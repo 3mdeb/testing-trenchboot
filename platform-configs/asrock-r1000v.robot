@@ -35,9 +35,6 @@ Power On
     Telnet.Read
     RteCtrl Power On
 
-    Telnet.Set Timeout    90s
-    Telnet.Read Until    GNU GRUB
-
 Get Boot Menu Position
     [Documentation]    Evaluate and return relative menu entry position
     ...                described in the argument.
@@ -69,6 +66,16 @@ Enter BIOS
     Telnet.Read Until    ${seabios_string}
     Telnet.Write Bare    ${seabios_key}
 
+iPXE dhcp
+    [Documentation]    Request IP address in iPXE shell. Takes network port
+    ...                number as an argument, which by default is set to 0.
+    [Arguments]    ${net_port}=0
+    # request IP address
+    Telnet.Set Timeout    30s
+    Write Bare Checking Every Letter    dhcp net${net_port}\n
+    Telnet.Read Until    ok
+    Telnet.Read Until    iPXE>
+
 Enter iPXE
     [Documentation]    Enter iPXE after device power cutoff.
     Enter BIOS
@@ -86,6 +93,7 @@ iPXE menu
     Telnet.Read
     Wait Until Keyword Succeeds    3x    2s    iPXE dhcp    ${net_port}
     Write Bare Checking Every Letter    chain http://${pxe_address}/${filename}\n
+    Telnet.Set Timeout    90s
 
 Boot from iPXE
     [Documentation]    Boot Asrock from iPXE menu. Takes PXE IP addres chosen
@@ -93,3 +101,15 @@ Boot from iPXE
     [Arguments]   ${pxe_address}   ${filename}   ${option}=None   ${net_port}=0
     Sleep    30s
     iPXE menu    ${pxe_address}    ${filename}    ${net_port}    Linux
+
+GRUB boot entry
+    [Documentation]    Enter specified in argument iPXE menu entry.
+    [Arguments]    ${menu_entry}    ${reference_str}    ${rs_offset}
+    Telnet.Set Timeout    90s
+    Telnet.Read Until    GNU GRUB
+    ${move}=    GRUB get menu position    ${menu_entry}    ${reference_str}    ${rs_offset}
+    ${grub_key}=    Set Variable If    ${move} < 0    ${grub_key_up}    ${grub_key}
+    : FOR    ${INDEX}    IN RANGE    0    ${move.__abs__()}
+    \   Telnet.Write Bare   ${grub_key}
+    \   Sleep    0.5s
+    Telnet.Write Bare    \n

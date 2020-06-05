@@ -26,8 +26,8 @@ YOC1.1 Meta-trenchboot Yocto Install
     [Documentation]    Performs an installation of given meta-trenchboot image
     ...                on Apu2
     Power On
-    Boot Flashing Tools for Apu2 from iPXE    ${pxe_address}    ${filename}
-    ...                                       Flashing tools for Apu2
+    Boot from iPXE    ${pxe_address}    ${filename}
+    ...               Flashing tools for Apu2
     ${output}=    Telnet.Execute Command    uname -r
     Should Contain    ${output}    yocto
     # Chosen device values are set as Suite Variables
@@ -40,13 +40,13 @@ YOC1.2 Boot Without DRTM
     ...                option and performs checks related to DRTM function
     Power On
     Boot From Storage Device    ${dev_type}
-    GRUB Boot Entry    boot
+    GRUB Boot Entry    boot    ${grub_reference_str}    ${grub_rs_offset}
     ${log}=    Telnet.Read Until    Booting the kernel.
-    :FOR    ${case}    IN     @{boot_info_list}
+    :FOR    ${case}    IN     @{grub_boot_info_list}
     \    ${status}=    Run Keyword And Return Status    Should Not Contain
     ...   ${log}    ${case}
     \    Should Be True    ${status}    Error: There is ${case} in boot info
-    Sleep    30s
+    Sleep    45s
     Telnet.Read
     Telnet.Set Prompt    \~#
     Telnet.Execute Command    root
@@ -59,13 +59,13 @@ YOC1.3 Boot With DRTM
     ...                option and performs checks related to DRTM function
     Power On
     Boot From Storage Device    ${dev_type}
-    GRUB Boot Entry    secure-boot
+    GRUB Boot Entry    secure-boot    ${grub_reference_str}    ${grub_rs_offset}
     ${log}=    Telnet.Read Until    Booting the kernel.
-    :FOR    ${case}    IN     @{boot_info_list}
+    :FOR    ${case}    IN     @{grub_boot_info_list}
     \    ${status}=    Run Keyword And Return Status    Should Contain
     ...   ${log}    ${case}
     \    Should Be True    ${status}    Error: There is no ${case} in boot info
-    Sleep    30s
+    Sleep    45s
     Telnet.Read
     Telnet.Set Prompt    \~#
     Telnet.Execute Command    root

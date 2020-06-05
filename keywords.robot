@@ -77,7 +77,6 @@ Write Letter Until Successful
     \    ${ret}=    Telnet.Read
     \    ${check}=    Evaluate    """${c}""" in """${ret}"""
     \    Run Keyword If    ${check}    Return From Keyword
-    Fail    Could not write the letter ${c} in ${iterations} tries
 
 iPXE get menu position
     [Documentation]    Evaluate and return relative menu entry position
@@ -119,7 +118,6 @@ GRUB get menu position
 GRUB boot entry
     [Documentation]    Enter specified in argument iPXE menu entry.
     [Arguments]    ${menu_entry}    ${reference_str}    ${rs_offset}
-    Set Timeout    30s
     ${move}=    GRUB get menu position    ${menu_entry}    ${reference_str}    ${rs_offset}
     ${grub_key}=    Set Variable If    ${move} < 0    ${grub_key_up}    ${grub_key}
     : FOR    ${INDEX}    IN RANGE    0    ${move.__abs__()}

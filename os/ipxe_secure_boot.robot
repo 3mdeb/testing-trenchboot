@@ -26,7 +26,6 @@ PXE1.1 Boot From Ipxe Without DRTM
     [Tags]    asrock
     [Documentation]    Boots ipxe on selected platform
     Power On
-    GRUB boot entry    ipxe    *boot    0
     Boot from iPXE    ${pxe_address}    tb/yocto/yocto.ipxe
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{ipxe_boot_info_list}
@@ -47,7 +46,6 @@ PXE1.2 Boot From Ipxe With DRTM
     [Tags]    asrock
     [Documentation]    Boots ipxe on selected platform
     Power On
-    GRUB boot entry    ipxe    *boot    0
     Boot from iPXE    ${pxe_address}    tb/yocto/yocto-lz.ipxe
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{ipxe_boot_info_list}
