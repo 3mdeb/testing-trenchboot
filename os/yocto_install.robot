@@ -22,6 +22,7 @@ Resource    ../keywords.robot
 *** Test Cases ***
 
 YOC1.1 Meta-trenchboot Yocto Install
+    [Tags]    apu2
     [Documentation]    Performs an installation of given meta-trenchboot image
     ...                on Apu2
     Power On
@@ -34,6 +35,7 @@ YOC1.1 Meta-trenchboot Yocto Install
     Gather and install meta-trenchboot artifacts    ${dev_file}    ${artifacts_link}
 
 YOC1.2 Boot Without DRTM
+    [Tags]    apu2    asrock
     [Documentation]    Boots into previously flashed image with DRTM disabled
     ...                option and performs checks related to DRTM function
     Power On
@@ -52,6 +54,7 @@ YOC1.2 Boot Without DRTM
     Should Contain All    ${pcrlist}    @{pcrlist_no_drtm[:2]}
 
 YOC1.3 Boot With DRTM
+    [Tags]    apu2    asrock
     [Documentation]    Boots into previously flashed image with DRTM enabled
     ...                option and performs checks related to DRTM function
     Power On

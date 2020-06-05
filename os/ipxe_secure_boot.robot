@@ -23,6 +23,7 @@ Resource    ../keywords.robot
 *** Test Cases ***
 
 PXE1.1 Boot From Ipxe Without DRTM
+    [Tags]    asrock
     [Documentation]    Boots ipxe on selected platform
     Power On
     Boot asrock from iPXE    ${pxe_address}
@@ -43,6 +44,7 @@ PXE1.1 Boot From Ipxe Without DRTM
     Should Contain All    ${pcrlist}    @{pcrlist_no_drtm[:2]}
 
 PXE1.2 Boot From Ipxe With DRTM
+    [Tags]    asrock
     [Documentation]    Boots ipxe on selected platform
     Power On
     Boot asrock from iPXE    ${pxe_address}    tb/yocto/yocto-lz.ipxe    0
