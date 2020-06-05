@@ -32,7 +32,7 @@ iPXE dhcp
     [Arguments]    ${net_port}=0
     # request IP address
     Telnet.Set Timeout    30s
-    Telnet.Write Bare    dhcp net${net_port}\n    0.5
+    Telnet.Write Bare    dhcp net${net_port}\n    0.1
     Telnet.Read Until    Configuring
     Telnet.Read Until    ok
     Telnet.Read Until    iPXE>
@@ -50,18 +50,17 @@ iPXE menu
     [Arguments]    ${pxe_address}    ${filename}    ${net_port}=0
     ...            ${read_until}=iPXE boot menu
     Set Timeout    30
-    Telnet.Read
     Wait Until Keyword Succeeds    3x    2s    iPXE dhcp    ${net_port}
     # download and run menu
-    Telnet.Write Bare    chain http://${pxe_address}/${filename}\n    0.7
+    Telnet.Write Bare    chain http://${pxe_address}/${filename}\n    0.1
     # wait for custom string from pxe-server
-    Telnet.Set Timeout    90s
     Telnet.Read Until    ${read_until}
     #Telnet.Write Bare    \x1b[B
 
 Write Bare Checking Every Letter
-    [Documentation]    Checks after writing each letter if it was recevied
-    ...                Retries if not
+    [Documentation]    Splits string into characters and writes each of them
+    ...                individually, for each checking if it was received before
+    ...                moving to next
     [Arguments]    ${string}
     @{characters}=    Split String To Characters    ${string}
     Telnet.Read
@@ -69,13 +68,16 @@ Write Bare Checking Every Letter
     \    Write Letter Until Successful    ${c}
 
 Write Letter Until Successful
-    [Arguments]    ${c}
-    :FOR    ${_}    IN RANGE    1    10
+    [Documentation]    Tries to write a letter, checking if it was properly
+    ...                received and retrying if not
+    [Arguments]    ${c}    ${iterations}=10
+    :FOR    ${_}    IN RANGE    1    ${iterations}
     \    Telnet.Write Bare    ${c}
     \    Sleep    0.5s
     \    ${ret}=    Telnet.Read
     \    ${check}=    Evaluate    """${c}""" in """${ret}"""
-    \    Run Keyword If    ${check}    Exit For Loop
+    \    Run Keyword If    ${check}    Return From Keyword
+    Fail    Could not write the letter ${c} in ${iterations} tries
 
 iPXE get menu position
     [Documentation]    Evaluate and return relative menu entry position
@@ -103,23 +105,24 @@ iPXE boot entry
 GRUB get menu position
     [Documentation]    Evaluate and return relative menu entry position
     ...                described in the argument.
-    [Arguments]    ${entry}
+    [Arguments]    ${entry}    ${reference_str}    ${rs_offset}
     Sleep    5s
     ${output}=    Telnet.Read
     Log    ${output}
     # enumerate output buffer lines and find line number which contain string
-    ${gnu_header}=    Get Line Number Containing String    ${output}    GNU GRUB
+    ${gnu_header}=    Get Line Number Containing String    ${output}    ${reference_str}
     ${entry_line}=    Get Line Number Containing String    ${output}    ${entry}
-    ${rel_pos}=    Evaluate    ${entry_line} - ${gnu_header} - 3
+    ${rel_pos}=    Evaluate    ${entry_line} - ${gnu_header} - ${rs_offset}
     Log    ${rel_pos}
     [Return]    ${rel_pos}
 
 GRUB boot entry
     [Documentation]    Enter specified in argument iPXE menu entry.
-    [Arguments]    ${menu_entry}
+    [Arguments]    ${menu_entry}    ${reference_str}    ${rs_offset}
     Set Timeout    30s
-    ${move}=    GRUB get menu position    ${menu_entry}
-    : FOR    ${INDEX}    IN RANGE    0    ${move}
+    ${move}=    GRUB get menu position    ${menu_entry}    ${reference_str}    ${rs_offset}
+    ${grub_key}=    Set Variable If    ${move} < 0    ${grub_key_up}    ${grub_key}
+    : FOR    ${INDEX}    IN RANGE    0    ${move.__abs__()}
     \   Telnet.Write Bare   ${grub_key}
     \   Sleep    0.5s
     Telnet.Write Bare    \n
@@ -230,32 +233,6 @@ Enable iPXE
 Disable iPXE
     [Documentation]    Disable network boting option in sortbootorder.
     Disable sortbootorder option    Network/PXE boot
-
-Boot Flashing Tools for Apu2 from iPXE
-    [Documentation]    Boot Flasing Tools For Apu 2 from iPXE menu and login to
-    ...                system. Takes PXE IP addres, http port number, ipxe
-    ...                filename, system version and network port number as an arguments.
-    [Arguments]    ${pxe_address}    ${filename}    ${option}    ${net_port}=0
-    Enter iPXE
-    iPXE menu    ${pxe_address}    ${filename}    ${net_port}
-    iPXE boot entry    ${option}
-    Sleep    10s
-    Telnet.Set Timeout    180
-    Telnet.Set Prompt    \#
-    Sleep    60s
-    Telnet.Read
-    Telnet.Write    root
-    Telnet.Read Until Prompt
-
-Boot asrock from iPXE
-    [Documentation]    Boot Flasing Tools For Apu 2 from iPXE menu and login to
-    ...                system. Takes PXE IP addres, http port number, ipxe
-    ...                filename, system version and network port number as an arguments.
-    [Arguments]    ${pxe_address}    ${filename}    ${option}    ${net_port}=0
-    #Enter BIOS
-    Sleep    30s
-    #Telnet.Read Until    asdf
-    iPXE menu    ${pxe_address}    ${filename}    ${net_port}    Linux
 
 Get firmware version from binary
     [Documentation]    Return firmware version from binary file sent via SSH to
@@ -374,17 +351,20 @@ Prepare Test Suite
     ...                SSH and serial connections, setting current platform to
     ...                global variable and setting Device Under Test to start
     ...                state. Keyword used in all [Suite Setup] sections.
-    Run Keyword If   '${config[:4]}' == 'apu2'    Import Resource
-    ...    ${CURDIR}/platform-configs/apu2.robot
-    ...    ELSE IF   '${config[:6]}' == 'asrock'  Import Resource
-    ...    ${CURDIR}/platform-configs/asrock-r1000v.robot
-    Run Keyword If   '${dev_type}' != 'auto'    Set Storage Device Number And Type
-    Set Chosen Platform Library As Preferred
+    Run Keyword If   '${config[:4]}' == 'apu2'    Run Keywords    Import Resource
+    ...        ${CURDIR}/platform-configs/apu2.robot
+    ...        AND    Set Library Search Order    apu2
+    ...    ELSE IF   '${config[:6]}' == 'asrock'  Run Keywords    Import Resource
+    ...        ${CURDIR}/platform-configs/asrock-r1000v.robot
+    ...        AND    Set Library Search Order    asrock-r1000v
+    Run Keyword If   '${dev_type}' not in ['auto', 'None']
+    ...               Set Storage Device Number And Type
 
     Open Connection And Log In
     ${platform}=    Get current RTE param    platform
     Set Global Variable    ${platform}
     Get DUT To Start State
+    Telnet.Set Timeout    90s
 
 Set Storage Device Number And Type
     ${dev_number}=    Evaluate    int(${dev_type[3:]})
@@ -483,6 +463,7 @@ Boot From Storage Device
     ...    ELSE IF    '${dev_type}'=='HDD'    Boot From Hard-Disk
     ...    ELSE IF    '${dev_type}'=='USB'    Boot From USB
     ...    ELSE IF    '${dev_type}'=='SDC'    Boot From SD Card
+    ...    ELSE IF    '${dev_type}'=='None'   Return From Keyword
 
 Choose Device Type
     Set Global Variable    ${dev_number}    0
