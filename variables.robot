@@ -9,8 +9,6 @@ ${artifacts_link}      https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jo
 ${dev_type}            auto    # Supported values: SSD, HDD, USB, SDC
 ${dev_file}            auto    # For example: /dev/sda
 
-@{boot_info_list}    grub_cmd_slaunch    grub_cmd_slaunch_module
-...                  grub_slaunch_boot_skinit
 
 @{STORAGE_PRIORITY}  SSD_Storage    HDD_Storage    USB_Storage    SDC_Storage
 # TB Hardware config
