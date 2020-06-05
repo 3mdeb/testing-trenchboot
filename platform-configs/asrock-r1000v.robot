@@ -1,30 +1,27 @@
 *** Variables ***
 
-${rte_s2n_port}            13541
-${flash_size}              ${8*1024*1024}
-${seabios_string}          F11
-${seabios_key}             \x1b\x21
-${payload_string}          Payload [setup]
-${ipxe_boot_entry}         PXE
-${ipxe_string}             autoboot
-${ipxe_string2}            N for PXE boot
-${ipxe_key}                \x1b[A
-${boot_menu_key}           \x1b[B
-${grub_key}                \x1b[B
-${net_boot_key}            n
-${net_boot_string}         Booting from ROM
-${sol_string}              DRAM
-${sn_pattern}              ^\\d{7}$
-${manufacturer}            Asrock
-${cpu}                     AMD R1505G SOC
+${rte_s2n_port}         13541
+${bios_string}          F11
+${bios_key}             \x1b\x21
+${payload_string}       Payload [setup]
+${ipxe_boot_entry}      PXE
+${ipxe_string}          autoboot
+${ipxe_string2}         N for PXE boot
+${ipxe_key}             \x1b[A
+${boot_menu_key}        \x1b[B
+${grub_key}             \x1b[B
+${grub_key_up}          \x1b[A
+${grub_reference_str}   *boot
+${grub_rs_offset}       0
+${dev_type}             None
+
+@{grub_boot_info_list}    PCR extended    lz_main() is about to exit
+...    grub_cmd_slaunch
 
 # Regression test flags
-${iPXE_config_support}     ${True}
+${iPXE_config_support}     ${False}
 
 *** Keywords ***
-
-Set Chosen Platform Library As Preferred
-    Set Library Search Order    asrock-r1000v
 
 Power On
     [Documentation]    Keyword clears telnet buffer and sets Device Under Test
@@ -37,6 +34,9 @@ Power On
     # read the old output
     Telnet.Read
     RteCtrl Power On
+
+    Telnet.Set Timeout    90s
+    Telnet.Read Until    GNU GRUB
 
 Get Boot Menu Position
     [Documentation]    Evaluate and return relative menu entry position
@@ -86,3 +86,10 @@ iPXE menu
     Telnet.Read
     Wait Until Keyword Succeeds    3x    2s    iPXE dhcp    ${net_port}
     Write Bare Checking Every Letter    chain http://${pxe_address}/${filename}\n
+
+Boot from iPXE
+    [Documentation]    Boot Asrock from iPXE menu. Takes PXE IP addres chosen
+    ...    ipxe image filename  and network port number as an arguments.
+    [Arguments]   ${pxe_address}   ${filename}   ${option}=None   ${net_port}=0
+    Sleep    30s
+    iPXE menu    ${pxe_address}    ${filename}    ${net_port}    Linux
