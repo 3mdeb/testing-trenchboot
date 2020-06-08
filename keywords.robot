@@ -355,6 +355,9 @@ Prepare Test Suite
     ...    ELSE IF   '${config[:6]}' == 'asrock'  Run Keywords    Import Resource
     ...        ${CURDIR}/platform-configs/asrock-r1000v.robot
     ...        AND    Set Library Search Order    asrock-r1000v
+    ...    ELSE IF    '${config[:10]}' == 'supermicro'    Run Keywords    Import Resource
+    ...        ${CURDIR}/platform-configs/supermicro-m11sdv-8ct-ln4f.robot
+    ...        AND    Set Library Search Order    supermicro-m11sdv-8ct-ln4f
     Run Keyword If   '${dev_type}' not in ['auto', 'None']
     ...               Set Storage Device Number And Type
 
