@@ -43,3 +43,34 @@ GRUB boot entry
     \   Sleep    0.5s
     Telnet.Write Bare    \n
     RteCtrl Power On
+
+iPXE dhcp
+    [Documentation]    Request IP address in iPXE shell. Takes network port
+    ...                number as an argument, which by default is set to 0.
+    [Arguments]    ${net_port}=0
+    # request IP address
+    Telnet.Set Timeout    50s
+    Telnet.Write Bare    dhcp net${net_port}\n
+    Telnet.Read Until    Configuring
+    Telnet.Read Until    ok
+    Telnet.Read Until    iPXE>
+
+iPXE menu
+    [Documentation]    Enter iPXE menu. Takes PXE IP addres, http port number,
+    ...                ipxe filename nad network port number as an arguments.
+    [Arguments]    ${pxe_address}    ${filename}    ${net_port}=0
+    ...            ${read_until}=iPXE boot menu
+    Set Timeout    30
+    Sleep    30s
+    Telnet.Read
+    Wait Until Keyword Succeeds    3x    2s    iPXE dhcp    ${net_port}
+    Sleep    10s
+    Telnet.Write Bare    chain http://${pxe_address}/${filename}\n    0.1
+    Telnet.Set Timeout    90s
+
+Boot from iPXE
+    [Documentation]    Boot Asrock from iPXE menu. Takes PXE IP addres chosen
+    ...    ipxe image filename  and network port number as an arguments.
+    [Arguments]   ${pxe_address}   ${filename}   ${option}=None   ${net_port}=0
+    Sleep    30s
+    iPXE menu    ${pxe_address}    ${filename}    ${net_port}    Linux
