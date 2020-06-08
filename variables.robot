@@ -25,7 +25,11 @@ ${dev_file}            auto    # For example: /dev/sda
 ...         platform=asrock       board-revision=none
 ...         platform_vendor=Asrock    rte_ip=none
 
-@{RTE_LIST}    &{RTE01}    ${RTE02}    ${RTE03}
+&{RTE04}    cpuid=02c00042a0dd0cd0    pcb_rev=0.5.3
+...         platform=supermicro       board-revision=none
+...         platform_vendor=supermicro    rte_ip=none
+
+@{RTE_LIST}    &{RTE01}    ${RTE02}    ${RTE03}    ${RTE04}
 
 # hardware configuration:
 # -----------------------------------------------------------------------------
