@@ -15,7 +15,6 @@ yocto tests](os/yocto_install.robot) to work correctly. To do that use
 [coreboot/flash_coreboot.robot](coreboot/flash_coreboot.robot).
 After that os tests can be run correctly.
 
-
 Virtualenv initialization
 -------------------------
 
@@ -37,13 +36,13 @@ Just replace the `robot` with:
 Running test cases
 ------------------
 
-Below commands assume you have virtualenv with robot framework activated.
+Commands below assume you have virtualenv with robot framework activated.
 
 ```
 # run test `FB1.3...` from foo suite bar test cases
 robot -t "FB1.3*" -L TRACE -v rte_ip:$RTE_IP -v config:$CONFIG -v fw_file:$FW_FILE ./foo/bar.robot
 # run all test cases from foo suite bar
-robot -L TRACE -v rte_ip:$RTE_IP -v config:$CONFIG -v fw_file:$FW_FILE ./foo/bar.robot
+robot -L TRACE -v rte_ip:$RTE_IP -v config:$CONFIG -v fw_file:$FW_FILE -i $CONFIG ./foo/bar.robot
 ```
 
 Of course you have to replace:
@@ -52,7 +51,8 @@ Of course you have to replace:
   [variables.robot](variables.robot),
 * `$CONFIG` - platform specific configuration for importing correct keywords and
   variables. List of [supported platforms](#supported-platforms) is shown below
-  and all config files are located in `platform-configs/`,
+  and all config files are located in `platform-configs/`. It is also used with
+  `-i` parameter to execute only the tests suitable for the given platform.
 * `$FW_FILE` - path to firmware you want to use for given suite.
 
 
@@ -70,15 +70,19 @@ robot -L TRACE -v rte_ip:192.168.4.172 -v config:apu2 -v fw_file:./coreboot.rom 
 robot -L TRACE -v rte_ip:192.168.4.172 -v config:apu2 -v fw_version:v4.10.0.1 ./coreboot/flash_coreboot.robot
 ```
 
+To run yocto tests and iPXE tests on asrock and supermicro platforms you must have
+preconfigured USB stick, with [Trenchboot Yocto Image]() or [iPXE loading image]().
+USB Stick necessary for given tests must be set as primary boot option.
+
 Supported platforms
 -------------------
 
 Manufacturer| Platform     | Firmware                 | Support | $CONFIG
 ------------|--------------|--------------------------|---------|--------------------------
 PC Engines  | apu2 | PC Engines coreboot fork | Full    | `apu2`
-Asrock      | R1000V | - | None | `r1000v`
+Asrock      | R1000V | UEFI | Full | `asrock`
+Supermicro  | m11sdv-8ct-ln4f | UEFI | Full | `supermicro`
 ASUS        | KGPE-D16 | - | None | `kgpe-d16`
-Supermicro  | m11sdv-8ct-ln4f | - | None | `supermicro`
 
 * _Full_ - supported all test suites,
 * _Limited_ - supported basic tests - flashing firmware (coreboot/uefi) etc. [WIP],
