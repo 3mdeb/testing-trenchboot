@@ -71,7 +71,8 @@ robot -L TRACE -v rte_ip:192.168.4.172 -v config:apu2 -v fw_version:v4.10.0.1 ./
 ```
 
 To run yocto tests and iPXE tests on asrock and supermicro platforms you must have
-preconfigured USB stick, with [Trenchboot Yocto Image]() or [iPXE loading image]().
+preconfigured USB stick, with [Trenchboot Yocto Image](https://cloud.3mdeb.com/index.php/s/nw5PYyqS7WDMnbm)
+or [iPXE loading image](https://cloud.3mdeb.com/index.php/s/33NHcLfR8mraT3T).
 USB Stick necessary for given tests must be set as primary boot option.
 
 Supported platforms
