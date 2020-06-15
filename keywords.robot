@@ -116,7 +116,11 @@ GRUB get menu position
     [Return]    ${rel_pos}
 
 GRUB boot entry
-    [Documentation]    Enter specified in argument iPXE menu entry.
+    [Documentation]    Enter specified in argument iPXE menu entry. By default
+    ...                menu entry is presumed to be under the reference string
+    ...                so that the move value is positive and default grub_key
+    ...                moving down in the menu is used. Otherwise, if the value
+    ...                is negative, grub_key is switched to grub_key_up.
     [Arguments]    ${menu_entry}    ${reference_str}    ${rs_offset}
     ${move}=    GRUB get menu position    ${menu_entry}    ${reference_str}    ${rs_offset}
     ${grub_key}=    Set Variable If    ${move} < 0    ${grub_key_up}    ${grub_key}
@@ -365,7 +369,6 @@ Prepare Test Suite
     ${platform}=    Get current RTE param    platform
     Set Global Variable    ${platform}
     Get DUT To Start State
-    Telnet.Set Timeout    90s
 
 Set Storage Device Number And Type
     ${dev_number}=    Evaluate    int(${dev_type[3:]})

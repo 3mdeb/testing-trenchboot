@@ -1,6 +1,6 @@
 *** Settings ***
 Library     SSHLibrary    timeout=90 seconds
-Library     Telnet    timeout=20 seconds
+Library     Telnet    timeout=90 seconds
 Library     Process
 Library     OperatingSystem
 Library     String
