@@ -1,6 +1,6 @@
 *** Settings ***
 Library     SSHLibrary    timeout=90 seconds
-Library     Telnet    timeout=20 seconds
+Library     Telnet    timeout=90 seconds
 Library     Process
 Library     OperatingSystem
 Library     String
@@ -22,11 +22,12 @@ Resource    ../keywords.robot
 *** Test Cases ***
 
 YOC1.1 Meta-trenchboot Yocto Install
+    [Tags]    apu2
     [Documentation]    Performs an installation of given meta-trenchboot image
     ...                on Apu2
     Power On
-    Boot Flashing Tools for Apu2 from iPXE    ${pxe_address}    ${filename}
-    ...                                       Flashing tools for Apu2
+    Boot from iPXE    ${pxe_address}    ${filename}
+    ...               Flashing tools for Apu2
     ${output}=    Telnet.Execute Command    uname -r
     Should Contain    ${output}    yocto
     # Chosen device values are set as Suite Variables
@@ -34,35 +35,37 @@ YOC1.1 Meta-trenchboot Yocto Install
     Gather and install meta-trenchboot artifacts    ${dev_file}    ${artifacts_link}
 
 YOC1.2 Boot Without DRTM
+    [Tags]    apu2    asrock    supermicro
     [Documentation]    Boots into previously flashed image with DRTM disabled
     ...                option and performs checks related to DRTM function
     Power On
     Boot From Storage Device    ${dev_type}
-    GRUB Boot Entry    boot
+    GRUB Boot Entry    boot    ${grub_reference_str}    ${grub_rs_offset}
     ${log}=    Telnet.Read Until    Booting the kernel.
-    :FOR    ${case}    IN     @{boot_info_list}
+    :FOR    ${case}    IN     @{grub_boot_info_list}
     \    ${status}=    Run Keyword And Return Status    Should Not Contain
     ...   ${log}    ${case}
     \    Should Be True    ${status}    Error: There is ${case} in boot info
-    Sleep    30s
+    Sleep    45s
     Telnet.Read
     Telnet.Set Prompt    \~#
     Telnet.Execute Command    root
     ${pcrlist}=    Telnet.Execute Command    tpm2_pcrlist | tail -n 25
-    Should Contain Any    ${pcrlist}    @{pcrlist_no_drtm[:2]}
+    Should Contain All    ${pcrlist}    @{pcrlist_no_drtm[:2]}
 
 YOC1.3 Boot With DRTM
+    [Tags]    apu2    asrock    supermicro
     [Documentation]    Boots into previously flashed image with DRTM enabled
     ...                option and performs checks related to DRTM function
     Power On
     Boot From Storage Device    ${dev_type}
-    GRUB Boot Entry    secure-boot
+    GRUB Boot Entry    secure-boot    ${grub_reference_str}    ${grub_rs_offset}
     ${log}=    Telnet.Read Until    Booting the kernel.
-    :FOR    ${case}    IN     @{boot_info_list}
+    :FOR    ${case}    IN     @{grub_boot_info_list}
     \    ${status}=    Run Keyword And Return Status    Should Contain
     ...   ${log}    ${case}
     \    Should Be True    ${status}    Error: There is no ${case} in boot info
-    Sleep    30s
+    Sleep    45s
     Telnet.Read
     Telnet.Set Prompt    \~#
     Telnet.Execute Command    root

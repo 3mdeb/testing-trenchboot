@@ -25,6 +25,7 @@ Prepare fw_file
 *** Test Cases ***
 
 FCO1.1 Flash firmware and verify
+    [Tags]    apu2
     ${file_exists}=    Run Keyword And Return Status   Variable Should Exist    ${fw_file}
     Run Keyword If    not ${file_exists} and "mainline" in """${config}"""
     ...    Fail    Flashing from FTP is not supported on ${config}

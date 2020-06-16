@@ -1,21 +1,22 @@
 *** Variables ***
 
-${rte_s2n_port}            13541
-${flash_size}              ${8*1024*1024}
-${seabios_string}          F10
-${seabios_key}             \x1b[21~
-${payload_string}          Payload [setup]
-${ipxe_boot_entry}         ?. iPXE
-${ipxe_string}             autoboot
-${ipxe_string2}            N for PXE boot
-${ipxe_key}                \x1b[A
-${grub_key}                \x1b[B
-${net_boot_key}            n
-${net_boot_string}         Booting from ROM
-${sol_string}              DRAM
-${sn_pattern}              ^\\d{7}$
-${manufacturer}            PC Engines
-${cpu}                     AMD GX-412TC SOC
+${rte_s2n_port}         13541
+${flash_size}           ${8*1024*1024}
+${seabios_string}       F10
+${seabios_key}          \x1b[21~
+${payload_string}       Payload [setup]
+${ipxe_boot_entry}      ?. iPXE
+${ipxe_string}          autoboot
+${ipxe_string2}         N for PXE boot
+${ipxe_key}             \x1b[A
+${grub_key}             \x1b[B
+${grub_reference_str}   GNU GRUB
+${grub_rs_offset}       3
+${net_boot_key}         n
+${net_boot_string}      Booting from ROM
+
+@{grub_boot_info_list}    grub_cmd_slaunch    grub_cmd_slaunch_module
+...                       grub_slaunch_boot_skinit
 
 ## Regression test flags
 ${iPXE_config_support}     ${True}
@@ -58,3 +59,19 @@ Read firmware apu
     Sleep    2s
     SSHLibrary.Execute Command    flashrom -p linux_spi:dev=/dev/spidev1.0,spispeed=16000 -r /tmp/coreboot.rom
     Power Cycle Off
+
+Boot from iPXE
+    [Documentation]    Boot Flasing Tools For Apu 2 from iPXE menu and login to
+    ...                system. Takes PXE IP addres, http port number, ipxe
+    ...                filename, system version and network port number as an arguments.
+    [Arguments]    ${pxe_address}    ${filename}    ${option}    ${net_port}=0
+    Enter iPXE
+    iPXE menu    ${pxe_address}    ${filename}    ${net_port}
+    iPXE boot entry    ${option}
+    Sleep    10s
+    Telnet.Set Timeout    180
+    Telnet.Set Prompt    \#
+    Sleep    60s
+    Telnet.Read
+    Telnet.Write    root
+    Telnet.Read Until Prompt
