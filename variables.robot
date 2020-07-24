@@ -2,7 +2,7 @@
 
 ${pxe_address}         boot.3mdeb.com
 ${http_port}           8000
-${filename}            menu.ipxe
+${pxe_filename}        menu.ipxe
 ${USERNAME}            root
 ${PASSWORD}            armbian
 ${artifacts_link}      https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/529653096/artifacts/download
@@ -16,18 +16,29 @@ ${dev_file}            auto    # For example: /dev/sda
 &{RTE01}    cpuid=02c000420c4ce851    pcb_rev=0.5.3
 ...         platform=apu2       board-revision=c4
 ...         rte_ip=none
+...         install_disk=auto
+...         boot_menu_entry=auto
 
 &{RTE02}    cpuid=02c00042f3ba1188    pcb_rev=0.5.3
 ...         platform=apu2       board-revision=d
 ...         platform_vendor=PC Engines    rte_ip=none
+...         install_disk=/dev/disk/by-id/ata-Hoodisk_SSD_JCTTC7A11230049
+...         boot_menu_entry=AHCI/0: Hoodisk SSD ATA-11 Hard-Disk (15272 MiBytes)
 
 &{RTE03}    cpuid=02c0004298d28199    pcb_rev=0.5.3
 ...         platform=asrock       board-revision=none
 ...         platform_vendor=Asrock    rte_ip=none
+...         install_disk=/dev/disk/by-id/usb-Innostor_Innostor_7529196330783-0:0
+...         boot_menu_entry=UEFI: InnostorInnostor 1.00, Partition 1
+
 
 &{RTE04}    cpuid=02c00042a0dd0cd0    pcb_rev=0.5.3
 ...         platform=supermicro       board-revision=none
 ...         platform_vendor=supermicro    rte_ip=none
+...         install_disk=/dev/disk/by-id/usb-SanDisk_Ultra_Fit_4C530000030116217075-0:0
+...         boot_menu_entry=UEFI: SanDisk, Partition 1
+
+
 
 @{RTE_LIST}    &{RTE01}    ${RTE02}    ${RTE03}    ${RTE04}
 
@@ -49,7 +60,9 @@ ${dev_file}            auto    # For example: /dev/sda
 # -----------------------------------------------------------------------------
 &{USB01}        vendor=Kingston    volume=16GB    type=USB_Storage
 ...             protocol=3.0    interface=USB    count=1
-@{USB_LIST}     &{USB01}
+&{USB02}        vendor=Sandisk    volume=16GB    type=USB_Storage
+...             protocol=3.0    interface=USB    count=2
+@{USB_LIST}     &{USB01}    &{USB02}
 # -----------------------------------------------------------------------------
 &{MODULE01}       vendor=Infineon-SLB9665 TT 2.0    type=TPM_Module
 ...               interface=LPC    count=2
@@ -60,5 +73,7 @@ ${dev_file}            auto    # For example: /dev/sda
 @{CONFIG01}    &{RTE01}       &{SSD01}       &{CARD01}       &{USB01}
 ...            &{MODULE01}
 @{CONFIG02}    &{RTE02}    ${SSD02}    ${MODULE01}
+@{CONFIG03}    &{RTE03}    ${USB02}
+@{CONFIG04}    &{RTE04}
 
-@{CONFIG_LIST}    @{CONFIG01}    @{CONFIG02}
+@{CONFIG_LIST}    @{CONFIG01}    @{CONFIG02}    @{CONFIG03}    @{CONFIG04}
