@@ -77,3 +77,17 @@ Boot from iPXE
     Telnet.Read
     Telnet.Write    root
     Telnet.Read Until Prompt
+
+Boot From Storage Device
+    [Arguments]    ${dev}
+    Boot Menu Choose Entry    ${dev}
+
+Gather and install meta-trenchboot artifacts
+    [Documentation]    TODO
+    [Arguments]    ${install_device}    ${artifacts_link}
+    #${bmap_file}=    Set Variable    tb-minimal-image-pcengines-apu2.wic.bmap
+    ${gz_file}=    Set Variable    tb-minimal-image-pcengines-apu2.wic.gz
+    Telnet.Execute Command    cd /tmp
+    Telnet.Execute Command    wget -O artifacts.zip ${artifacts_link}
+    Telnet.Execute Command    unzip artifacts.zip && cd artifacts
+    Telnet.Execute Command    bmaptool copy --bmap ${gz_file} ${install_device}
