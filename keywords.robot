@@ -363,12 +363,14 @@ Prepare Test Suite
     ...    ELSE IF    '${config[:10]}' == 'supermicro'    Run Keywords    Import Resource
     ...        ${CURDIR}/platform-configs/supermicro-m11sdv-8ct-ln4f.robot
     ...        AND    Set Library Search Order    supermicro-m11sdv-8ct-ln4f
-    Run Keyword If   '${dev_type}' not in ['auto', 'None']
-    ...               Set Storage Device Number And Type
 
     Open Connection And Log In
     ${platform}=    Get current RTE param    platform
+    ${install_disk}=    Get current RTE param    install_disk
+    ${boot_menu_entry}=    Get current RTE param    boot_menu_entry
     Set Global Variable    ${platform}
+    Set Suite Variable     ${install_disk}
+    Set Suite Variable     ${boot_menu_entry}
     Get DUT To Start State
 
 Set Storage Device Number And Type
@@ -452,23 +454,28 @@ Boot from SD Card
     @{characters}=    Split String To Characters    ${line}
     Telnet.Write Bare    ${characters[0]}
 
-Gather and install meta-trenchboot artifacts
-    [Documentation]    TODO
-    [Arguments]    ${install_device}    ${artifacts_link}
-    ${bmap_file}=    Set Variable    tb-minimal-image-pcengines-apu2.wic.bmap
-    ${gz_file}=    Set Variable    tb-minimal-image-pcengines-apu2.wic.gz
-    Telnet.Execute Command    cd /tmp
-    Telnet.Execute Command    wget -O artifacts.zip ${artifacts_link}
-    Telnet.Execute Command    unzip artifacts.zip && cd artifacts
-    Telnet.Execute Command    bmaptool copy --bmap ${bmap_file} ${gz_file} ${install_device}
+Boot Menu Choose Entry
+    [Arguments]    ${boot_menu_entry}
+    ${menu}=    Enter SeaBIOS And Return Menu
+    ${line}=    Get Lines Containing String    ${menu}    ${boot_menu_entry}
+    ${lines_count}=    Get Line Count    ${line}
+    Run Keyword If    '${lines_count}'=='0'    Fail    ${boot_menu_entry} not detected
+    @{characters}=    Split String To Characters    ${line}
+    Telnet.Write Bare    ${characters[0]}
 
-Boot From Storage Device
+Boot From Storage Device By Type
     [Arguments]    ${dev_type}
     Run Keyword If    '${dev_type}'=='SSD'    Boot From Hard-Disk
     ...    ELSE IF    '${dev_type}'=='HDD'    Boot From Hard-Disk
     ...    ELSE IF    '${dev_type}'=='USB'    Boot From USB
     ...    ELSE IF    '${dev_type}'=='SDC'    Boot From SD Card
-    ...    ELSE IF    '${dev_type}'=='None'   Return From Keyword
+
+Boot From Storage Device
+    [Arguments]    ${boot_menu_entry}
+    Run Keyword If    '${boot_menu_entry}' in ('SSD', 'HDD', 'USB', 'SDC')
+    ...                Boot From Storage Device By Type    ${boot_menu_entry}
+    ...        ELSE
+    ...                Boot Menu Choose Entry    ${boot_menu_entry}
 
 Choose Device Type
     Set Global Variable    ${dev_number}    0
@@ -503,9 +510,9 @@ Choose Storage Device For Install
     ...                choice will be made in order: SSD->HDD->USB->SDC
     ...                If dev_file==auto first of a type is chosen eg. /dev/sda
     ...                Device file may be incremented, eg. HDD1 -> /dev/hdb
-    Run Keyword If    '${dev_type}'=='auto'    Choose Device Type
-    Run Keyword If    '${dev_file}'=='auto'    Choose Device File
-    Log To Console    \ndev_type:${dev_type}, dev_file:${dev_file}, dev_number:${dev_number}
+    Run Keyword If    '${boot_menu_entry}'=='auto'    Choose Device Type
+    Run Keyword If    '${install_disk}'=='auto'    Choose Device File
+    Log To Console    \nboot_entry:${boot_menu_entry}, install_disk:${install_disk}
 
 Should Contain All
     [Arguments]    ${log}    @{params}
