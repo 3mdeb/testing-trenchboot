@@ -97,15 +97,16 @@ iPXE boot entry
     Set Timeout    30
     ${move}=    iPXE get menu position    ${menu_entry}
     : FOR    ${INDEX}    IN RANGE    0    ${move}
-    \   Telnet.Write Bare    \x1b[B    0.1
-    \   Sleep    0.5s
+    \   Telnet.Write Bare    \x1b[B    0.05
+    \   Sleep    1s
+    Telnet.Read
     Telnet.Write Bare    \n
 
 GRUB get menu position
     [Documentation]    Evaluate and return relative menu entry position
     ...                described in the argument.
-    [Arguments]    ${entry}    ${reference_str}    ${rs_offset}
-    Sleep    5s
+    [Arguments]    ${entry}    ${reference_str}    ${rs_offset}    ${sleep}=5s
+    Sleep    ${sleep}
     ${output}=    Telnet.Read
     Log    ${output}
     # enumerate output buffer lines and find line number which contain string
