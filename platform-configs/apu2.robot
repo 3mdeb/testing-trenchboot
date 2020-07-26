@@ -10,10 +10,12 @@ ${ipxe_string}          autoboot
 ${ipxe_string2}         N for PXE boot
 ${ipxe_key}             \x1b[A
 ${grub_key}             \x1b[B
+${grub_key_up}          \x1b[A
 ${grub_reference_str}   GNU GRUB
 ${grub_rs_offset}       3
 ${net_boot_key}         n
 ${net_boot_string}      Booting from ROM
+${yoc_ipxe_option}      Flashing tools for Apu2
 
 @{grub_boot_info_list}    grub_cmd_slaunch    grub_cmd_slaunch_module
 ...                       grub_slaunch_boot_skinit
