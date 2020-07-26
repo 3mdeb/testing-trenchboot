@@ -22,24 +22,27 @@ Resource    ../keywords.robot
 *** Test Cases ***
 
 YOC1.1 Meta-trenchboot Yocto Install
-    [Tags]    apu2
+    [Tags]    apu2    asrock    supermicro
     [Documentation]    Performs an installation of given meta-trenchboot image
-    ...                on Apu2
+    ...                on chosen platform
     Power On
-    Boot from iPXE    ${pxe_address}    ${filename}
-    ...               Flashing tools for Apu2
-    ${output}=    Telnet.Execute Command    uname -r
-    Should Contain    ${output}    yocto
+    Boot from iPXE    ${pxe_address}    ${pxe_filename}
+    ...               ${yoc_ipxe_option}
+
+    Run Keyword If    '${platform}' in ('asrock', 'supermicro')    Run Keywords
+    ...           Telnet.Set Prompt    root@debian:
+    ...    AND    Telnet.Login    root    debian
+
     # Chosen device values are set as Suite Variables
     Choose Storage Device For Install
-    Gather and install meta-trenchboot artifacts    ${dev_file}    ${artifacts_link}
+    Gather and install meta-trenchboot artifacts    ${install_disk}    ${artifacts_link}
 
 YOC1.2 Boot Without DRTM
     [Tags]    apu2    asrock    supermicro
     [Documentation]    Boots into previously flashed image with DRTM disabled
     ...                option and performs checks related to DRTM function
     Power On
-    Boot From Storage Device    ${dev_type}
+    Boot From Storage Device    ${boot_menu_entry}
     GRUB Boot Entry    boot    ${grub_reference_str}    ${grub_rs_offset}
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{grub_boot_info_list}
@@ -58,7 +61,7 @@ YOC1.3 Boot With DRTM
     [Documentation]    Boots into previously flashed image with DRTM enabled
     ...                option and performs checks related to DRTM function
     Power On
-    Boot From Storage Device    ${dev_type}
+    Boot From Storage Device    ${boot_menu_entry}
     GRUB Boot Entry    secure-boot    ${grub_reference_str}    ${grub_rs_offset}
     ${log}=    Telnet.Read Until    Booting the kernel.
     :FOR    ${case}    IN     @{grub_boot_info_list}
