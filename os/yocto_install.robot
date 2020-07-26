@@ -74,3 +74,15 @@ YOC1.3 Boot With DRTM
     Telnet.Execute Command    root
     ${pcrlist}=    Telnet.Execute Command    tpm2_pcrlist | tail -n 25
     Should Not Contain Any    ${pcrlist}    @{pcrlist_no_drtm}
+
+YOC1.4 Verify If PCR Values Correspond To Manually Extended
+    [Tags]    apu2    asrock    supermicro
+    Power On
+    Boot From Storage Device    ${boot_menu_entry}
+    GRUB Boot Entry    secure-boot    ${grub_reference_str}    ${grub_rs_offset}
+    Sleep    45s
+    Telnet.Read
+    Telnet.Set Prompt    \#
+    Telnet.Execute Command    root
+
+    Verify PCR Values
