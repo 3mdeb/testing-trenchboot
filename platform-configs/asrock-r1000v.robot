@@ -13,7 +13,8 @@ ${grub_key}             \x1b[B
 ${grub_key_up}          \x1b[A
 ${grub_reference_str}   *boot
 ${grub_rs_offset}       0
-${dev_type}             None
+${yoc_ipxe_option}      Debian stable netboot 4.14.y
+${pxe_filename}         tb/menu.ipxe
 
 @{grub_boot_info_list}    PCR extended    lz_main() is about to exit
 ...    grub_cmd_slaunch
