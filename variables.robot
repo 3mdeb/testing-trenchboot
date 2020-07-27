@@ -5,7 +5,6 @@ ${http_port}           8000
 ${pxe_filename}        menu.ipxe
 ${USERNAME}            root
 ${PASSWORD}            armbian
-${artifacts_link}      https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/529653096/artifacts/download
 ${dev_type}            auto    # Supported values: SSD, HDD, USB, SDC
 ${dev_file}            auto    # For example: /dev/sda
 

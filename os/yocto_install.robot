@@ -18,6 +18,14 @@ Resource    ../keywords.robot
 *** Variables ***
 
 @{pcrlist_no_drtm}   18 : ffff    17 : ffff    18 : 0000    17 : 0000
+#${pxe_address}       192.168.4.206:8000
+#${filename}          menu.ipxe
+#${yoc_ipxe_option}   Debian stable netboot 4.15.y
+#${pxe_address}       192.168.4.221:8081
+#${filename}          coreos.ipxe
+#${yoc_ipxe_option}   None
+#${artifacts_link}    https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/639536733/artifacts/download
+${artifacts_link}    https://gitlab.com/trenchboot1/3mdeb/meta-trenchboot/-/jobs/639431725/artifacts/download
 
 *** Test Cases ***
 

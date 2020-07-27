@@ -364,6 +364,12 @@ Prepare Test Suite
     ...        ${CURDIR}/platform-configs/supermicro-m11sdv-8ct-ln4f.robot
     ...        AND    Set Library Search Order    supermicro-m11sdv-8ct-ln4f
 
+
+    #${dev_number}=   Set Variable    -1
+    #Set Suite Variable    ${dev_number}
+    #Run Keyword If   '${dev_type}' in ('auto', 'None') and '${dev_file}' in ('auto',)
+    #...               Set Storage Device Number And Type
+
     Open Connection And Log In
     ${platform}=    Get current RTE param    platform
     ${install_disk}=    Get current RTE param    install_disk
