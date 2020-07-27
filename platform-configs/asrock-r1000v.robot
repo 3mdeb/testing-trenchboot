@@ -13,7 +13,8 @@ ${grub_key}             \x1b[B
 ${grub_key_up}          \x1b[A
 ${grub_reference_str}   *boot
 ${grub_rs_offset}       0
-${dev_type}             None
+${yoc_ipxe_option}      Debian stable netboot 4.14.y
+${pxe_filename}         tb/menu.ipxe
 
 @{grub_boot_info_list}    PCR extended    lz_main() is about to exit
 ...    grub_cmd_slaunch
@@ -56,15 +57,15 @@ Boot Menu Choose Entry
     : FOR    ${INDEX}    IN RANGE    0    ${move}
     \   Telnet.Write Bare   ${boot_menu_key}
     \   Sleep    0.5s
-    Telnet.Write Bare    \n
+    Telnet.Write Bare    \r
 
 Enter BIOS
     [Documentation]    Enter BIOS with key specified in platform-configs.
     # waiting for SeaBIOS boot menu enter string may be delayed by xHCI init
     # set longer timeout to prevent test failure
     Telnet.Set Timeout    60s
-    Telnet.Read Until    ${seabios_string}
-    Telnet.Write Bare    ${seabios_key}
+    Telnet.Read Until    ${bios_string}
+    Telnet.Write Bare    ${bios_key}
 
 iPXE dhcp
     [Documentation]    Request IP address in iPXE shell. Takes network port
@@ -92,24 +93,46 @@ iPXE menu
     Sleep    30s
     Telnet.Read
     Wait Until Keyword Succeeds    3x    2s    iPXE dhcp    ${net_port}
-    Write Bare Checking Every Letter    chain http://${pxe_address}/${filename}\n
+    Write Bare Checking Every Letter    chain http://${pxe_address}/${filename}
+    Telnet.Write Bare    \n
     Telnet.Set Timeout    90s
 
 Boot from iPXE
     [Documentation]    Boot Asrock from iPXE menu. Takes PXE IP addres chosen
     ...    ipxe image filename  and network port number as an arguments.
-    [Arguments]   ${pxe_address}   ${filename}   ${option}=None   ${net_port}=0
+    [Arguments]   ${pxe_address}   ${filename}   ${menu_entry}=None   ${net_port}=0
     Sleep    30s
     iPXE menu    ${pxe_address}    ${filename}    ${net_port}    Linux
+    Log To Console    Menu entry ${menu_entry}'$
+    Run Keyword If    '${menu_entry}'!='None'    iPXE boot entry    ${menu_entry}
 
 GRUB boot entry
     [Documentation]    Enter specified in argument iPXE menu entry.
     [Arguments]    ${menu_entry}    ${reference_str}    ${rs_offset}
     Telnet.Set Timeout    90s
     Telnet.Read Until    GNU GRUB
-    ${move}=    GRUB get menu position    ${menu_entry}    ${reference_str}    ${rs_offset}
+    ${move}=    GRUB get menu position
+    ...    ${menu_entry}    ${reference_str}    ${rs_offset}    sleep=1s
     ${grub_key}=    Set Variable If    ${move} < 0    ${grub_key_up}    ${grub_key}
     : FOR    ${INDEX}    IN RANGE    0    ${move.__abs__()}
     \   Telnet.Write Bare   ${grub_key}
     \   Sleep    0.5s
     Telnet.Write Bare    \n
+
+Gather and install meta-trenchboot artifacts
+    [Documentation]    TODO
+    [Arguments]    ${install_device}    ${artifacts_link}
+    ${bmap_file}=    Set Variable   tb-minimal-efi-image-genericx86-64.wic.bmap
+    ${gz_file}=    Set Variable    tb-minimal-efi-image-genericx86-64.wic.gz
+    Telnet.Execute Command    cd /tmp
+    Telnet.Execute Command    echo 'nameserver 1.1.1.1' > /etc/resolv.conf
+    Telnet.Execute Command    wget -O unzip https://cloud.3mdeb.com/index.php/s/3gikLqy6B68HaJ8/download
+    Telnet.Execute Command    chmod +x unzip
+    Telnet.Execute Command    wget -O artifacts.zip ${artifacts_link}
+    Telnet.Execute Command    ./unzip artifacts.zip && cd artifacts
+    Telnet.Execute Command    bmaptool copy --bmap ${bmap_file} ${gz_file} ${install_device}
+
+Boot From Storage Device
+    [Arguments]    ${dev}
+    Enter BIOS
+    Boot Menu Choose Entry    ${dev}
