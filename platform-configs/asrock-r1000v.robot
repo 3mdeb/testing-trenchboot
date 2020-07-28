@@ -119,6 +119,17 @@ GRUB boot entry
     \   Sleep    0.5s
     Telnet.Write Bare    \n
 
+iPXE boot entry
+    [Documentation]    Enter specified in argument iPXE menu entry.
+    [Arguments]    ${menu_entry}
+    Set Timeout    30
+    ${move}=    iPXE get menu position    ${menu_entry}
+    : FOR    ${INDEX}    IN RANGE    0    ${move}
+    \   Telnet.Write Bare    \x1b[B    0.05
+    \   Sleep    1s
+    Telnet.Read
+    Telnet.Write Bare    \n\n\n
+
 Gather and install meta-trenchboot artifacts
     [Documentation]    TODO
     [Arguments]    ${install_device}    ${artifacts_link}
