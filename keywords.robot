@@ -521,8 +521,11 @@ Should Contain All
 
 Verify PCR Values
     Telnet.Execute Command    cd /usr/bin/landing-zone
+    ${bzimageInitramfs}=    Set Variable If
+    ...    '${platform}' in ('asrock', 'supermicro')   /boot/EFI/BOOT/bzImage-initramfs
+    ...    /boot/bzImage
     ${tpm2_pcrlist_value}=   Telnet.Execute Command
     ...    tpm2_pcrlist | grep -E '17 : [a-z0-9]{64}' | cut -d" " -f 5
     ${extend_all_value}=     Telnet.Execute Command
-    ...    ./extend_all.sh /boot/EFI/BOOT/bzImage-initramfs | grep SHA256 | cut -d" " -f 1
+    ...    ./extend_all.sh ${bzimageInitramfs} | grep SHA256 | cut -d" " -f 1
     Should Be Equal    ${tpm2_pcrlist_value}    ${extend_all_value}
