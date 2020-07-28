@@ -526,6 +526,8 @@ Verify PCR Values
     ...    /boot/bzImage
     ${tpm2_pcrlist_value}=   Telnet.Execute Command
     ...    tpm2_pcrlist | grep -E '17 : [a-z0-9]{64}' | cut -d" " -f 5
+    ${old}=    Telnet.Set Timeout    8m
     ${extend_all_value}=     Telnet.Execute Command
     ...    ./extend_all.sh ${bzimageInitramfs} | grep SHA256 | cut -d" " -f 1
+    Telnet.Set Timeout    ${old}
     Should Be Equal    ${tpm2_pcrlist_value}    ${extend_all_value}
