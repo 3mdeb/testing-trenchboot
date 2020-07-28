@@ -119,6 +119,17 @@ GRUB boot entry
     \   Sleep    0.5s
     Telnet.Write Bare    \n
 
+iPXE boot entry
+    [Documentation]    Enter specified in argument iPXE menu entry.
+    [Arguments]    ${menu_entry}
+    Set Timeout    30
+    ${move}=    iPXE get menu position    ${menu_entry}
+    : FOR    ${INDEX}    IN RANGE    0    ${move}
+    \   Telnet.Write Bare    \x1b[B    0.05
+    \   Sleep    1s
+    Telnet.Read
+    Telnet.Write Bare    \n\n\n
+
 Gather and install meta-trenchboot artifacts
     [Documentation]    TODO
     [Arguments]    ${install_device}    ${artifacts_link}
@@ -129,8 +140,10 @@ Gather and install meta-trenchboot artifacts
     Telnet.Execute Command    wget -O unzip https://cloud.3mdeb.com/index.php/s/3gikLqy6B68HaJ8/download
     Telnet.Execute Command    chmod +x unzip
     Telnet.Execute Command    wget -O artifacts.zip ${artifacts_link}
-    Telnet.Execute Command    ./unzip artifacts.zip && cd artifacts
-    Telnet.Execute Command    bmaptool copy --bmap ${bmap_file} ${gz_file} ${install_device}
+    Telnet.Execute Command    ./unzip artifacts.zip && cd artifacts-uefi
+    ${log}=    Telnet.Execute Command
+    ...    bmaptool copy --bmap ${bmap_file} ${gz_file} ${install_device}
+    Should Contain    ${log}    bmaptool: info: copying time
 
 Boot From Storage Device
     [Arguments]    ${dev}

@@ -90,4 +90,5 @@ Gather and install meta-trenchboot artifacts
     Telnet.Execute Command    cd /tmp
     Telnet.Execute Command    wget -O artifacts.zip ${artifacts_link}
     Telnet.Execute Command    unzip artifacts.zip && cd artifacts
-    Telnet.Execute Command    bmaptool copy --nobmap ${gz_file} ${install_device}
+    ${log}=    Telnet.Execute Command    bmaptool copy --nobmap ${gz_file} ${install_device}
+    Should Contain    ${log}    bmaptool: info: copying time

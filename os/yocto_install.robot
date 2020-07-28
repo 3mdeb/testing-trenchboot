@@ -30,7 +30,8 @@ YOC1.1 Meta-trenchboot Yocto Install
     ...               ${yoc_ipxe_option}
 
     Run Keyword If    '${platform}' in ('asrock', 'supermicro')    Run Keywords
-    ...           Telnet.Set Prompt    root@debian:
+    ...           Telnet.Set Timeout    90s
+    ...    AND    Telnet.Set Prompt    root@debian:
     ...    AND    Telnet.Login    root    debian
 
     # Chosen device values are set as Suite Variables
