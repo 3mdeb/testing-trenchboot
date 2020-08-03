@@ -10,6 +10,19 @@ Serial setup
     # Telnet.Set Encoding    errors=ignore
     Set Timeout    15
 
+Login To TB Minimal
+    Sleep    45s
+    Telnet.Read
+    Telnet.Set Prompt    \#
+    Telnet.Execute Command    root
+    Telnet.Execute Command    dmesg -n 1
+
+Login To Debian
+    Telnet.Set Timeout    90s
+    Telnet.Set Prompt    root@debian:
+    Telnet.Login    root    debian
+    Telnet.Execute Command    dmesg -n 1
+
 iPXE shell
     [Documentation]    Enter iPXE shell if network booting is enabled.
     # find string indicating network booting is enabled

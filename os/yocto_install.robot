@@ -29,12 +29,10 @@ YOC1.1 Meta-trenchboot Yocto Install
     Boot from iPXE    ${pxe_address}    ${pxe_filename}
     ...               ${yoc_ipxe_option}
 
-    Run Keyword If    '${platform}' in ('asrock', 'supermicro')    Run Keywords
-    ...           Telnet.Set Timeout    90s
-    ...    AND    Telnet.Set Prompt    root@debian:
-    ...    AND    Telnet.Login    root    debian
+    Run Keyword If    '${platform}' in ('asrock', 'supermicro')   Login To Debian
 
-    # Chosen device values are set as Suite Variables
+    # Chosen device values are set as Suite Variables, used if install disk
+    # & boot menu entry not set
     Choose Storage Device For Install
     Gather and install meta-trenchboot artifacts    ${install_disk}    ${artifacts_link}
 
@@ -50,10 +48,7 @@ YOC1.2 Boot Without DRTM
     \    ${status}=    Run Keyword And Return Status    Should Not Contain
     ...   ${log}    ${case}
     \    Should Be True    ${status}    Error: There is ${case} in boot info
-    Sleep    45s
-    Telnet.Read
-    Telnet.Set Prompt    \~#
-    Telnet.Execute Command    root
+    Login To TB Minimal
     ${pcrlist}=    Telnet.Execute Command    tpm2_pcrlist | tail -n 25
     Should Contain All    ${pcrlist}    @{pcrlist_no_drtm[:2]}
 
@@ -69,10 +64,7 @@ YOC1.3 Boot With DRTM
     \    ${status}=    Run Keyword And Return Status    Should Contain
     ...   ${log}    ${case}
     \    Should Be True    ${status}    Error: There is no ${case} in boot info
-    Sleep    45s
-    Telnet.Read
-    Telnet.Set Prompt    \~#
-    Telnet.Execute Command    root
+    Login To TB Minimal
     ${pcrlist}=    Telnet.Execute Command    tpm2_pcrlist | tail -n 25
     Should Not Contain Any    ${pcrlist}    @{pcrlist_no_drtm}
 
@@ -81,9 +73,6 @@ YOC1.4 Verify If PCR Values Correspond To Manually Extended
     Power On
     Boot From Storage Device    ${boot_menu_entry}
     GRUB Boot Entry    secure-boot    ${grub_reference_str}    ${grub_rs_offset}
-    Sleep    45s
-    Telnet.Read
-    Telnet.Set Prompt    \#
-    Telnet.Execute Command    root
+    Login To TB Minimal
 
     Verify PCR Values
