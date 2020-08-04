@@ -105,6 +105,8 @@ Boot from iPXE
     [Documentation]    Boot Supermicro from iPXE menu. Takes PXE IP addres chosen
     ...    ipxe image filename  and network port number as an arguments.
     [Arguments]   ${pxe_address}   ${filename}   ${menu_entry}=None   ${net_port}=0
+    ${boot_menu_ipxe}=    Get Current RTE param    boot_menu_ipxe
+    Boot From Storage Device   ${boot_menu_ipxe}
     Sleep    30s
     iPXE menu    ${pxe_address}    ${filename}    ${net_port}    Linux
     Log To Console    Menu entry ${menu_entry}'$
