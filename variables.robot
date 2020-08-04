@@ -29,13 +29,14 @@ ${dev_file}            auto    # For example: /dev/sda
 ...         platform_vendor=Asrock    rte_ip=none
 ...         install_disk=/dev/disk/by-id/usb-Innostor_Innostor_7529196330783-0:0
 ...         boot_menu_entry=UEFI: InnostorInnostor 1.00, Partition 1
-
+...         boot_menu_ipxe=USB: SanDisk
 
 &{RTE04}    cpuid=02c00042a0dd0cd0    pcb_rev=0.5.3
 ...         platform=supermicro       board-revision=none
 ...         platform_vendor=supermicro    rte_ip=none
 ...         install_disk=/dev/disk/by-id/usb-SanDisk_Ultra_Fit_4C530000030116217075-0:0
 ...         boot_menu_entry=UEFI: SanDisk, Partition 1
+...         boot_menu_ipxe=ADATA USB Flash Drive 1100
 
 
 
