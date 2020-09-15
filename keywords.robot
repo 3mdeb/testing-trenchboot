@@ -396,8 +396,17 @@ Get DUT To Start State
     [Documentation]    Clear telnet buffer and get Device Under Test to start
     ...                state (RTE Relay On).
     Telnet.Read
-    ${result}=    Get Relay State
-    Run Keyword If    '${result}'=='low'    RteCtrl Relay
+    ${result}=    Get Power Supply State
+    Run Keyword If    '${result}'=='low'    Turn On Power Supply
+
+Turn On Power Supply
+    ${state}=    Run Keyword If    '${platform}' in ['supermicro', 'kgpe-d16']
+    ...                             Sonoff Power On Platform
+    ...                     ELSE    RteCtrl Relay
+
+Sonoff Power On Platform
+    ${sonoff_ip}=    Get current RTE param    sonoff_ip
+    ${state}=    Sonoff Turn On    ${sonoff_ip}
 
 Check If iPXE Is Enabled
     [Documentation]    Enable iPXE if network booting is disabled. Do nothing if
@@ -431,6 +440,19 @@ Power Cycle Off
 Get Relay State
     [Documentation]    Return RTE relay state through REST API.
     ${state}=    RteCtrl Get GPIO State    0
+    [Return]    ${state}
+
+Get Sonoff State
+    [Documentation]    Return sonoff switch state through API.
+    ${sonoff_ip}=    Get current RTE param    sonoff_ip
+    ${state}=    Sonoff Get State    ${sonoff_ip}
+    ${state}=    Evaluate    'high' if "${state}" == "ON" else 'low'
+    [Return]    ${state}
+
+Get Power Supply State
+    ${state}=    Run Keyword If    '${platform}' in ['supermicro', 'kgpe-d16']
+    ...    Get Sonoff State
+    ...    ELSE    Get Relay State
     [Return]    ${state}
 
 Boot from Hard-Disk
