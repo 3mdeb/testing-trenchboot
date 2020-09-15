@@ -37,6 +37,7 @@ ${dev_file}            auto    # For example: /dev/sda
 ...         install_disk=/dev/disk/by-id/usb-SanDisk_Ultra_Fit_4C530000030116217075-0:0
 ...         boot_menu_entry=UEFI: SanDisk, Partition 1
 ...         boot_menu_ipxe=ADATA USB Flash Drive 1100
+...         sonoff_ip=192.168.4.112
 
 
 
