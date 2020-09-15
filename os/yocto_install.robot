@@ -11,6 +11,7 @@ Suite Setup       Run Keywords    Prepare Test Suite
 ...                               Check If iPXE Is Enabled
 Suite Teardown    Log Out And Close Connection\
 
+Resource    ../sonoffctrl.robot
 Resource    ../rtectrl-rest-api/rtectrl.robot
 Resource    ../variables.robot
 Resource    ../keywords.robot
