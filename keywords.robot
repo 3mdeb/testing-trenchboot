@@ -400,7 +400,8 @@ Get DUT To Start State
     Run Keyword If    '${result}'=='low'    Turn On Power Supply
 
 Turn On Power Supply
-    ${state}=    Run Keyword If    '${platform}' in ['supermicro', 'kgpe-d16']
+    ${pc}=    Get Variable Value    ${POWER_CTRL}
+    ${state}=    Run Keyword If    '${pc}' == 'sonoff'
     ...                             Sonoff Power On Platform
     ...                     ELSE    RteCtrl Relay
 
@@ -450,7 +451,8 @@ Get Sonoff State
     [Return]    ${state}
 
 Get Power Supply State
-    ${state}=    Run Keyword If    '${platform}' in ['supermicro', 'kgpe-d16']
+    ${pc}=    Get Variable Value    ${POWER_CTRL}
+    ${state}=    Run Keyword If    '${pc}' == 'sonoff'
     ...    Get Sonoff State
     ...    ELSE    Get Relay State
     [Return]    ${state}

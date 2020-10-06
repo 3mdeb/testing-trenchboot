@@ -15,6 +15,7 @@ ${sol_string}              DRAM
 ${sn_pattern}              ^\\d{7}$
 ${manufacturer}            ASUS
 ${cpu}                     AMD Opetron 6282SE
+${power_ctrl}              sonoff
 
 # Regression test flags
 ${iPXE_config_support}     ${True}
