@@ -4,15 +4,15 @@
 
 Sonoff Turn On
     [Arguments]    ${ip}
-    SSHLibrary.Execute Command    wget http://${ip}/switch/sonoff_s20_relay/turn_on --method=POST
+    SSHLibrary.Execute Command    wget -q -O - http://${ip}/switch/sonoff_s20_relay/turn_on --method=POST
 
 Sonoff Turn Off
     [Arguments]    ${ip}
-    SSHLibrary.Execute Command    wget http://${ip}/switch/sonoff_s20_relay/turn_off --method=POST
+    SSHLibrary.Execute Command    wget -q -O - http://${ip}/switch/sonoff_s20_relay/turn_off --method=POST
 
 Sonoff Toggle
     [Arguments]    ${ip}
-    SSHLibrary.Execute Command    wget http://${ip}/switch/sonoff_s20_relay/toggle --method=POST
+    SSHLibrary.Execute Command    wget -q -O - http://${ip}/switch/sonoff_s20_relay/toggle --method=POST
 
 Sonoff Get State
     [Documentation]    Return current state of sonoff swtich. Correct values are
