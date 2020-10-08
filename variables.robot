@@ -4,7 +4,7 @@ ${pxe_address}         boot.3mdeb.com
 ${http_port}           8000
 ${pxe_filename}        menu.ipxe
 ${USERNAME}            root
-${PASSWORD}            armbian
+${PASSWORD}            meta-rte
 ${dev_type}            auto    # Supported values: SSD, HDD, USB, SDC
 ${dev_file}            auto    # For example: /dev/sda
 
