@@ -15,7 +15,8 @@ ${grub_reference_str}   *boot
 ${grub_rs_offset}       0
 ${pxe_filename}         tb/menu.ipxe
 ${yoc_ipxe_option}      Debian stable netboot 4.14.y
- 
+${power_ctrl}           sonoff
+
 @{grub_boot_info_list}    PCR extended    lz_main() is about to exit
 ...    grub_cmd_slaunch
 
