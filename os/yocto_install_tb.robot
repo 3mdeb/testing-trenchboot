@@ -44,15 +44,11 @@ YOC1.2 Boot With DRTM and run eventlog
     Boot From Storage Device    AHCI/0: 30GB SATA Flash Drive ATA-11 Hard-Disk (28626 MiBytes)
     GRUB Boot Entry    secure-boot    ${grub_reference_str}    ${grub_rs_offset}
     ${log}=    Telnet.Read Until    Booting the kernel.
-    :FOR    ${case}    IN     @{grub_boot_info_list}
-    \    ${status}=    Run Keyword And Return Status    Should Contain
-    ...   ${log}    ${case}
-    \    Should Be True    ${status}    Error: There is no ${case} in boot info
     Login To TB Minimal
     ${pcrlist}=    Telnet.Execute Command    tpm2_pcrlist | tail -n 25
     Log to Console    ${pcrlist}
     Should Not Contain Any    ${pcrlist}    @{pcrlist_no_drtm}
-    Telnet.Execute.Command    wget ${pxe_address}/tb/upstream/cbmem
-    Telnet.Execute.Command    chmod +x cbmem
+    Telnet.Execute Command    wget ${pxe_address}/tb/upstream/cbmem
+    Telnet.Execute Command    chmod +x cbmem
     ${eventlog}=    Telnet.Execute Command    ./cbmem -d
     Log to Console    ${eventlog}
