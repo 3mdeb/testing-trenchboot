@@ -92,3 +92,14 @@ Gather and install meta-trenchboot artifacts
     Telnet.Execute Command    unzip artifacts.zip && cd artifacts
     ${log}=    Telnet.Execute Command    bmaptool copy --nobmap ${gz_file} ${install_device}
     Should Contain    ${log}    bmaptool: info: copying time
+
+Gather and install meta-trenchboot artifacts self hosted
+    [Documentation]    TODO
+    [Arguments]    ${install_device}    ${artifacts_link}
+    ${bmap_file}=    Set Variable    tb-minimal-image-pcengines-apu2.wic.bmap
+    ${gz_file}=    Set Variable    tb-minimal-image-pcengines-apu2.wic.gz
+    Telnet.Execute Command    cd /tmp
+    Telnet.Execute Command    wget ${artifacts_link}/${bmap_file}
+    Telnet.Execute Command    wget ${artifacts_link}/${gz_file}
+    ${log}=    Telnet.Execute Command    bmaptool copy --bmap ${bmap_file} ${gz_file} ${install_device}
+    Should Contain    ${log}    bmaptool: info: copying time
